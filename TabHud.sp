@@ -3,7 +3,6 @@
 #include <cstrike>
 #include <sdkhooks>
 #include <multicolors>
-#include <DynamicChannels>
 #include <clientprefs>
 
 #define MAX_BUTTONS 25
@@ -95,7 +94,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 			char ShowInfo[60];
 			Format(ShowInfo, sizeof(ShowInfo), "Time left: %s\nSpectators: %d\nPlayers: %d/%d", sTime, iSpecCount, iPlayersCount, g_cMaxPlayers.IntValue);
 			SetHudTextParams(0.0, 0.4, 1.0, RGB, 0, 0.00, 0.3, 0.4);
-			ShowHudText(client, GetDynamicChannel(0), ShowInfo);
+			ShowHudText(client, 0, ShowInfo);
 		}
 	}
 	return Plugin_Continue;
