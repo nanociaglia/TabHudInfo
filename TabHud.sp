@@ -3,6 +3,7 @@
 #include <cstrike>
 #include <sdkhooks>
 #include <multicolors>
+#include <DynamicChannels>
 #include <clientprefs>
 
 #define MAX_BUTTONS 25
@@ -14,14 +15,13 @@
 
 Handle g_hCookie_TabHud;
 bool g_bEnableTabHud[MAXPLAYERS + 1];
-ConVar g_cMaxPlayers;
 
 public Plugin myinfo = 
 {
 	name = "Tab Hud Info",
 	author = "Nano",
 	description = "Show info about timeleft, players and spectators when you press TAB",
-	version = "1.0",
+	version = "1.1",
 	url = "https://steamcommunity.com/id/marianzet1/"
 };
 
@@ -29,8 +29,6 @@ public void OnPluginStart(){
 	g_hCookie_TabHud = RegClientCookie("toggle_tabhud", "TabHud", CookieAccess_Protected);
 
 	RegConsoleCmd("sm_tabhud", OnToggleTabHud);
-	
-	g_cMaxPlayers = CreateConVar("sm_max_players", "32", "Set here how many slots does your server have (Default 32)");
 }
 
 public void OnClientPutInServer(int client){
@@ -46,12 +44,12 @@ public Action OnToggleTabHud(int client, int args){
 	if(!client) return Plugin_Continue;
 	
 	if(g_bEnableTabHud[client]){
-		CPrintToChat(client, "{green}[TAB-HUD]{default} You have {darkred}disabled {default}scoreboard information.");
+		CPrintToChat(client, "{green}[TAB-HUD] {darkred}Desactivaste {default}la información del scoreboard.");
 		g_bEnableTabHud[client] = false;
 		SetClientCookie(client, g_hCookie_TabHud, "0");
 	}
 	else {
-		CPrintToChat(client, "{green}[TAB-HUD]{default} You have {lightblue}enabled {default}scoreboard information.");
+		CPrintToChat(client, "{green}[TAB-HUD] {lightblue}Activaste {default}la información del scoreboard.");
 		g_bEnableTabHud[client] = true;
 		SetClientCookie(client, g_hCookie_TabHud, "1");
 	}
@@ -84,15 +82,28 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 				}
 			}
 
+			int iTimeleft;
 			char sTime[60];
 			char ShowInfo[60];
-			int iTimeleft;
 			GetMapTimeLeft(iTimeleft);
-			FormatTime(sTime, sizeof(sTime), "%M:%S", iTimeleft);	
+			if(iTimeleft > 0)
+			{
+				FormatTime(sTime, sizeof(sTime), "%M:%S", iTimeleft);
 
-			Format(ShowInfo, sizeof(ShowInfo), "Time left: %s\nSpectators: %d\nPlayers: %d/%d", sTime, iSpecCount, iPlayersCount, g_cMaxPlayers.IntValue);
-			SetHudTextParams(0.0, 0.4, 1.0, RGB, 0, 0.00, 0.3, 0.4);
-			ShowHudText(client, 0, ShowInfo);
+				Format(ShowInfo, sizeof(ShowInfo), "Tiempo restante: %s\nEspectadores: %d\nJugadores: %d/%d", sTime, iSpecCount, iPlayersCount, GetMaxHumanPlayers());
+				SetHudTextParams(0.0, 0.4, 1.0, RGB, 0, 0.00, 0.3, 0.4);
+				ShowHudText(client, GetDynamicChannel(0), ShowInfo);
+			}
+			if(iTimeleft <= 0)
+			{
+				char sMap[PLATFORM_MAX_PATH];
+				GetNextMap(sMap, sizeof(sMap));
+
+				GetMapDisplayName(sMap, sMap, sizeof(sMap));
+				Format(ShowInfo, sizeof(ShowInfo), "Nextmap: %s\nEspectadores: %d\nJugadores: %d/%d", sMap, iSpecCount, iPlayersCount, GetMaxHumanPlayers());
+				SetHudTextParams(0.0, 0.4, 1.0, RGB, 0, 0.00, 0.3, 0.4);
+				ShowHudText(client, GetDynamicChannel(0), ShowInfo);
+			}
 		}
 	}
 	return Plugin_Continue;
