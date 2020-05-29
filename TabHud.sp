@@ -85,13 +85,11 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 			}
 
 			char sTime[60];
+			char ShowInfo[60];
 			int iTimeleft;
-			char sMap[PLATFORM_MAX_PATH];
-			GetNextMap(sMap, sizeof(sMap));
 			GetMapTimeLeft(iTimeleft);
 			FormatTime(sTime, sizeof(sTime), "%M:%S", iTimeleft);	
 
-			char ShowInfo[60];
 			Format(ShowInfo, sizeof(ShowInfo), "Time left: %s\nSpectators: %d\nPlayers: %d/%d", sTime, iSpecCount, iPlayersCount, g_cMaxPlayers.IntValue);
 			SetHudTextParams(0.0, 0.4, 1.0, RGB, 0, 0.00, 0.3, 0.4);
 			ShowHudText(client, 0, ShowInfo);
