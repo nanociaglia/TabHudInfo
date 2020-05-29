@@ -20,7 +20,7 @@ public Plugin myinfo =
 	name = "Tab Hud Info",
 	author = "Nano",
 	description = "Show info about timeleft, players and spectators when you press TAB",
-	version = "1.1",
+	version = "1.2",
 	url = "https://steamcommunity.com/id/marianzet1/"
 };
 
@@ -43,12 +43,12 @@ public Action OnToggleTabHud(int client, int args){
 	if(!client) return Plugin_Continue;
 	
 	if(g_bEnableTabHud[client]){
-		CPrintToChat(client, "{green}[TAB-HUD] {darkred}Desactivaste {default}la información del scoreboard.");
+		CPrintToChat(client, "{green}[TAB-HUD]{default} You have {darkred}disabled {default}scoreboard information.");
 		g_bEnableTabHud[client] = false;
 		SetClientCookie(client, g_hCookie_TabHud, "0");
 	}
 	else {
-		CPrintToChat(client, "{green}[TAB-HUD] {lightblue}Activaste {default}la información del scoreboard.");
+		CPrintToChat(client, "{green}[TAB-HUD]{default} You have {lightblue}enabled {default}scoreboard information.");
 		g_bEnableTabHud[client] = true;
 		SetClientCookie(client, g_hCookie_TabHud, "1");
 	}
@@ -82,14 +82,15 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 			}
 
 			int iTimeleft;
-			char sTime[60];
-			char ShowInfo[60];
+			char sTime[60], ShowInfo[60];
 			GetMapTimeLeft(iTimeleft);
 			if(iTimeleft > 0)
 			{
+				char sHour[30];
 				FormatTime(sTime, sizeof(sTime), "%M:%S", iTimeleft);
+				FormatTime(sHour, sizeof(sHour), "%H:%M:%S", GetTime());
 
-				Format(ShowInfo, sizeof(ShowInfo), "Tiempo restante: %s\nEspectadores: %d\nJugadores: %d/%d", sTime, iSpecCount, iPlayersCount, GetMaxHumanPlayers());
+				Format(ShowInfo, sizeof(ShowInfo), "Timeleft: %s\nSpecs: %d\nPlayers: %d/%d\nHour: %s", sTime, iSpecCount, iPlayersCount, GetMaxHumanPlayers(), sHour);
 				SetHudTextParams(0.0, 0.4, 1.0, RGB, 0, 0.00, 0.3, 0.4);
 				ShowHudText(client, 0, ShowInfo);
 			}
@@ -99,7 +100,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 				GetNextMap(sMap, sizeof(sMap));
 
 				GetMapDisplayName(sMap, sMap, sizeof(sMap));
-				Format(ShowInfo, sizeof(ShowInfo), "Nextmap: %s\nEspectadores: %d\nJugadores: %d/%d", sMap, iSpecCount, iPlayersCount, GetMaxHumanPlayers());
+				Format(ShowInfo, sizeof(ShowInfo), "Nextmap: %s\nSpecs: %d\nPlayers: %d/%d", sMap, iSpecCount, iPlayersCount, GetMaxHumanPlayers());
 				SetHudTextParams(0.0, 0.4, 1.0, RGB, 0, 0.00, 0.3, 0.4);
 				ShowHudText(client, 0, ShowInfo);
 			}
