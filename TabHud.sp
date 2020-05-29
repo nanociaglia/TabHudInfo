@@ -3,7 +3,6 @@
 #include <cstrike>
 #include <sdkhooks>
 #include <multicolors>
-#include <DynamicChannels>
 #include <clientprefs>
 
 #define MAX_BUTTONS 25
@@ -92,7 +91,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 
 				Format(ShowInfo, sizeof(ShowInfo), "Tiempo restante: %s\nEspectadores: %d\nJugadores: %d/%d", sTime, iSpecCount, iPlayersCount, GetMaxHumanPlayers());
 				SetHudTextParams(0.0, 0.4, 1.0, RGB, 0, 0.00, 0.3, 0.4);
-				ShowHudText(client, GetDynamicChannel(0), ShowInfo);
+				ShowHudText(client, 0, ShowInfo);
 			}
 			if(iTimeleft <= 0)
 			{
@@ -102,7 +101,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 				GetMapDisplayName(sMap, sMap, sizeof(sMap));
 				Format(ShowInfo, sizeof(ShowInfo), "Nextmap: %s\nEspectadores: %d\nJugadores: %d/%d", sMap, iSpecCount, iPlayersCount, GetMaxHumanPlayers());
 				SetHudTextParams(0.0, 0.4, 1.0, RGB, 0, 0.00, 0.3, 0.4);
-				ShowHudText(client, GetDynamicChannel(0), ShowInfo);
+				ShowHudText(client, 0, ShowInfo);
 			}
 		}
 	}
