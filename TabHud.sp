@@ -5,6 +5,10 @@
 #include <multicolors>
 #include <clientprefs>
 
+#undef REQUIRE_PLUGIN
+#include <store>
+#define REQUIRE_PLUGIN
+
 #pragma semicolon 1
 #pragma newdecls required
 
@@ -14,14 +18,14 @@
 
 Handle g_hSyncHud, g_hCTabHud;
 
-bool		g_bEnableTabHud		[MAXPLAYERS + 1];
+bool	g_bEnableTabHud[MAXPLAYERS + 1], g_bStoreCredits = false;
 
 public Plugin myinfo 		= 
 {
 	name 				= "Tab Hud Info",
 	author 				= "Nano",
 	description 			= "Show info when you press TAB",
-	version 				= "1.3",
+	version 				= "1.4",
 	url 					= "https://steamcommunity.com/id/marianzet1/"
 };
 
@@ -42,6 +46,33 @@ public void OnClientPutInServer(int client)
 	{
 		g_bEnableTabHud[client] = false;
 	}
+}
+
+public void OnAllPluginsLoaded()
+{
+	g_bStoreCredits = LibraryExists("store");
+}
+ 
+public void OnLibraryAdded(const char[] name)
+{
+	if (StrEqual(name, "store"))
+	{
+		g_bStoreCredits = true;
+	}
+}
+
+public void OnLibraryRemoved(const char[] name)
+{
+	if (StrEqual(name, "store"))
+	{
+		g_bStoreCredits = false;
+	}
+}
+
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
+{
+	MarkNativeAsOptional("Store_GetClientCredits");
+	return APLRes_Success;
 }
 
 public Action OnToggleTabHud(int client, int args)
@@ -116,17 +147,35 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 
 			if(IsValidClient(client)) 
 			{
-				if(iTimeLeft >= 0) 
+				if(g_bStoreCredits)
 				{
-					Format(sPrint, sizeof(sPrint), "-|TimeLeft: %s:%s\n-|Hour: %s\n-|People connected: %d/%d\n-|People playing: %d\n-|Specs: %d", sMinutes, sSeconds, sHour, iPlayersCountTotal, GetMaxHumanPlayers(), iPlayersCountAlive, iPlayersCountSpec);
-					SetHudTextParams(0.0, 0.4, 1.0, RGBSpecs, 0, 0.00, 0.3, 0.4);
-					ShowSyncHudText(client, g_hSyncHud, sPrint);
+					if(iTimeLeft >= 0) 
+					{
+						Format(sPrint, sizeof(sPrint), "-|Credits: %i\n-|TimeLeft: %s:%s\n-|Hour: %s\n-|People connected: %d/%d\n-|People playing: %d\n-|Specs: %d", Store_GetClientCredits(client), sMinutes, sSeconds, sHour, iPlayersCountTotal, GetMaxHumanPlayers(), iPlayersCountAlive, iPlayersCountSpec);
+						SetHudTextParams(0.0, 0.4, 1.0, RGBSpecs, 0, 0.00, 0.3, 0.4);
+						ShowSyncHudText(client, g_hSyncHud, sPrint);
+					}
+					else if(iTimeLeft < 0) 
+					{
+						Format(sPrint, sizeof(sPrint), "-|Credits: %i\n-|Nextmap: %s\n-|Hour: %s\n-|People connected: %d/%d\n-|People playing: %d\n-|Specs: %d", Store_GetClientCredits(client), sMap, sHour, iPlayersCountTotal, GetMaxHumanPlayers(), iPlayersCountAlive, iPlayersCountSpec);
+						SetHudTextParams(0.0, 0.4, 1.0, RGBSpecs, 0, 0.00, 0.3, 0.4);
+						ShowSyncHudText(client, g_hSyncHud, sPrint);
+					}
 				}
-				else if(iTimeLeft < 0) 
+				else
 				{
-					Format(sPrint, sizeof(sPrint), "-|Nextmap: %s\n-|Hour: %s\n-|People connected: %d/%d\n-|People playing: %d\n-|Specs: %d", sMap, sHour, iPlayersCountTotal, GetMaxHumanPlayers(), iPlayersCountAlive, iPlayersCountSpec);
-					SetHudTextParams(0.0, 0.4, 1.0, RGBSpecs, 0, 0.00, 0.3, 0.4);
-					ShowSyncHudText(client, g_hSyncHud, sPrint);
+					if(iTimeLeft >= 0) 
+					{
+						Format(sPrint, sizeof(sPrint), "-|TimeLeft: %s:%s\n-|Hour: %s\n-|People connected: %d/%d\n-|People playing: %d\n-|Specs: %d", sMinutes, sSeconds, sHour, iPlayersCountTotal, GetMaxHumanPlayers(), iPlayersCountAlive, iPlayersCountSpec);
+						SetHudTextParams(0.0, 0.4, 1.0, RGBSpecs, 0, 0.00, 0.3, 0.4);
+						ShowSyncHudText(client, g_hSyncHud, sPrint);
+					}
+					else if(iTimeLeft < 0) 
+					{
+						Format(sPrint, sizeof(sPrint), "-|Nextmap: %s\n-|Hour: %s\n-|People connected: %d/%d\n-|People playing: %d\n-|Specs: %d", sMap, sHour, iPlayersCountTotal, GetMaxHumanPlayers(), iPlayersCountAlive, iPlayersCountSpec);
+						SetHudTextParams(0.0, 0.4, 1.0, RGBSpecs, 0, 0.00, 0.3, 0.4);
+						ShowSyncHudText(client, g_hSyncHud, sPrint);
+					}
 				}
 			}
 		}
